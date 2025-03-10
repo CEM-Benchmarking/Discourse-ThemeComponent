@@ -1,6 +1,28 @@
-// <script type="text/discourse-plugin" version="0.8">
-// Hardcoding the target path
-const TARGET_PATH = "/c/agenda/43";
+{/* <script type="text/discourse-plugin" version="0.8"> */}
+// Force a full page reload when ENTERING or LEAVING /c/agenda/43
+withPluginApi("0.8.31", (api) => {
+  const AGENDA_PATH = "/c/agenda/43";
+  let lastPath = window.location.pathname;
+
+  api.onPageChange((newUrl) => {
+    // If we're NOT on agenda, but newUrl includes it => user is ENTERING agenda
+    if (!lastPath.includes(AGENDA_PATH) && newUrl.includes(AGENDA_PATH)) {
+      console.log("[Agenda] Forcing full reload because user is ENTERING", AGENDA_PATH);
+      window.location = newUrl;
+      return;
+    }
+    // If lastPath includes agenda but newUrl doesn't => user is LEAVING agenda
+    if (lastPath.includes(AGENDA_PATH) && !newUrl.includes(AGENDA_PATH)) {
+      console.log("[Agenda] Forcing full reload because user left", AGENDA_PATH);
+      window.location = newUrl;
+      return;
+    }
+    // Update lastPath for next route change
+    lastPath = window.location.pathname;
+  });
+});
+
+// Existing Agenda logic (unchanged, except we removed the old routeObserver).
 
 const DEBUG_MODE = true; // Toggle logging on/off
 const MAX_RETRIES = 5;
@@ -38,20 +60,29 @@ function applyHighlighting(row, titleText) {
 
   for (let rule of highlightRules) {
     if (titleText.includes(rule.keyword.toLowerCase())) {
-      row.classList.add(rule.cssClass);
-
-      if (rule.hideThumbnail) {
-        const thumbnailDiv = row.querySelector(".topic-list-thumbnail");
-        if (thumbnailDiv) thumbnailDiv.style.display = "none";
-      }
+      matchedRule = rule;
+      break;
+    }
+  }
+  if (matchedRule) {
+    row.classList.add(matchedRule.cssClass);
 
       if (rule.removeExcerpt) {
         const excerptDiv = row.querySelector("div[style*='font-size: 14px; color: rgb(102, 102, 102); margin-top: 4px;']");
         if (excerptDiv) excerptDiv.remove();
+      const thumbnailDiv = row.querySelector(".topic-list-thumbnail");
       }
-      break;
+    }
+    if (matchedRule.removeExcerpt) {
+      const excerptDiv = row.querySelector("div[style*='font-size: 14px; color: rgb(102, 102, 102); margin-top: 4px;']");
+      if (excerptDiv) excerptDiv.remove();
     }
   }
+}
+
+function isInsidePABSConference() {
+  const categoryDropdown = document.querySelector('.select-kit-selected-name .badge-category__name');
+  return categoryDropdown && categoryDropdown.textContent.trim() === "PABS conference";
 }
 
 function runAfterEmberRender(callback, attempts = 0) {
@@ -70,7 +101,6 @@ function runAfterEmberRender(callback, attempts = 0) {
   });
 }
 
-// Parse excerpt lines (INFO:, SPEAKER:, LOCATION:)
 function parseExcerptData(row) {
   const excerptDiv = row.querySelector(".topic-excerpt");
   if (!excerptDiv) return {};
@@ -103,12 +133,19 @@ function processAgendaEvents() {
   processingInProgress = true;
   lastRunTime = now;
 
-  // Temporarily disconnect the topicList observer
+  // Temporarily disconnect topicListObserver to avoid re-triggering
   if (topicListObserver) {
     topicListObserver.disconnect();
   }
 
   runAfterEmberRender(() => {
+    if (!isInsidePABSConference()) {
+      logWarning("⚠️ Not inside PABS conference. Continuing without processing...");
+      processingInProgress = false;
+      observeTopicListChanges();
+      return;
+    }
+
     logDebug("🚀 Running Agenda Processing...");
     const topicList = document.querySelector("tbody.topic-list-body");
     if (!topicList) {
@@ -129,12 +166,13 @@ function processAgendaEvents() {
 
     retryCount = 0;
 
-    // Hide default excerpts
+    // Hide the default topic excerpt
     topicList.querySelectorAll(".topic-excerpt").forEach(excerpt => {
       excerpt.style.display = "none";
     });
 
     let lastDate = null;
+    let firstDate = null;
     let pinnedPosts = [];
     let nonPinnedPosts = [];
 
@@ -144,20 +182,21 @@ function processAgendaEvents() {
     });
 
     function parseEventDate(dateText) {
-      const cleaned = dateText.split(",")[0].trim();
-      const match = cleaned.match(/\b(\d{1,2})[-\/](\d{1,2})\b/);
-      if (!match) {
-        logWarning(`⚠️ No valid date found in text: "${dateText}"`);
-        return null;
+      let cleanedDate = dateText.split(",")[0].trim();
+      let dateMatch = cleanedDate.match(/\b(\d{1,2})[-\/](\d{1,2})\b/);
+
+      if (dateMatch) {
+        const [_, month, day] = dateMatch;
+        const currentYear = new Date().getFullYear();
+        let parsedDate = new Date(Date.UTC(currentYear, month - 1, day, 5, 0, 0));
+        if (isNaN(parsedDate.getTime())) {
+          logWarning(`⚠️ Date parsing failed for: "${dateText}"`);
+          return null;
+        }
+        return parsedDate;
       }
-      const [_, month, day] = match;
-      const thisYear = new Date().getFullYear();
-      const d = new Date(Date.UTC(thisYear, month - 1, day, 5, 0, 0));
-      if (isNaN(d)) {
-        logWarning(`⚠️ Date parsing failed for: "${dateText}"`);
-        return null;
-      }
-      return d;
+      logWarning(`⚠️ No valid date found in text: "${dateText}"`);
+      return null;
     }
 
     function getEventDate(row) {
@@ -168,10 +207,11 @@ function processAgendaEvents() {
     function formatDateWithOrdinal(date) {
       if (!date) return "Invalid Date";
       const monthNames = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
       ];
-      const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
       let dayOfWeek = dayNames[date.getUTCDay()];
       let day = date.getUTCDate();
       let month = monthNames[date.getUTCMonth()];
@@ -179,32 +219,38 @@ function processAgendaEvents() {
       if (day % 10 === 1 && day !== 11) suffix = "st";
       else if (day % 10 === 2 && day !== 12) suffix = "nd";
       else if (day % 10 === 3 && day !== 13) suffix = "rd";
+
       return `${dayOfWeek}, ${month} ${day}${suffix}`;
     }
 
-    // Clear the table entirely and rebuild
+    // Clear the table and rebuild
     topicList.innerHTML = "";
 
-    // pinned first
+    // Pinned first
     pinnedPosts.forEach(row => topicList.appendChild(row));
 
-    // non-pinned
+    // Then non-pinned
     nonPinnedPosts.forEach(row => {
       const eventDate = getEventDate(row);
       if (!eventDate) return;
-      const formattedDate = formatDateWithOrdinal(eventDate);
 
-      if (formattedDate !== lastDate) {
+      const formattedDate = formatDateWithOrdinal(eventDate);
+      if (!firstDate) {
+        firstDate = formattedDate;
+      }
+
+      if (lastDate !== formattedDate) {
         lastDate = formattedDate;
-        const sepRow = document.createElement("tr");
-        sepRow.classList.add("agenda-separator");
-        sepRow.innerHTML = `<td>${formattedDate}</td>`;
-        topicList.appendChild(sepRow);
+        const separatorRow = document.createElement("tr");
+        separatorRow.classList.add("agenda-separator");
+        separatorRow.innerHTML = `<td>${formattedDate}</td>`;
+        topicList.appendChild(separatorRow);
       }
 
       const eventTitle = row.querySelector(".title.raw-link.raw-topic-link");
       if (!eventTitle) return;
 
+      // Parse excerpt lines
       const { info, speaker, location } = parseExcerptData(row);
       if (info && !row.dataset.infoSplit) {
         const infoElem = document.createElement("div");
@@ -241,18 +287,19 @@ function processAgendaEvents() {
       topicList.appendChild(row);
     });
 
-    // Time-only display
-    document.querySelectorAll(".topic-list-item-event .date").forEach((el) => {
+    // Create a visible time-only display after hiding .date
+    document.querySelectorAll(".topic-list-item-event .date").forEach(el => {
       if (el.nextElementSibling && el.nextElementSibling.classList.contains("time-only-display")) {
-        return; // already done
+        return; // Already added
       }
-      const parts = el.textContent.trim().split(",");
+      const fullText = el.textContent.trim();
+      const parts = fullText.split(",");
       if (parts.length > 1) {
         const timePart = parts.slice(1).join(",").trim();
-        const timeSpan = document.createElement("span");
-        timeSpan.classList.add("time-only-display");
-        timeSpan.textContent = timePart;
-        el.insertAdjacentElement("afterend", timeSpan);
+        const timeOnlySpan = document.createElement("span");
+        timeOnlySpan.classList.add("time-only-display");
+        timeOnlySpan.textContent = timePart;
+        el.insertAdjacentElement("afterend", timeOnlySpan);
       }
     });
 
@@ -261,7 +308,7 @@ function processAgendaEvents() {
   });
 }
 
-// Observe for infinite scroll once we’re on the agenda
+// Mutation observer for newly added rows (infinite scroll)
 function observeTopicListChanges() {
   if (topicListObserver) {
     topicListObserver.disconnect();
@@ -271,8 +318,8 @@ function observeTopicListChanges() {
 
   topicListObserver = new MutationObserver((mutations) => {
     let newRowsDetected = false;
-    for (const m of mutations) {
-      if (m.type === "childList" && m.addedNodes.length > 0) {
+    for (const mutation of mutations) {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
         newRowsDetected = true;
         break;
       }
@@ -282,19 +329,12 @@ function observeTopicListChanges() {
       processAgendaEvents();
     }
   });
+
   topicListObserver.observe(topicListBody, { childList: true });
 }
 
-// ----------------------------------------------------
-//  Run ONLY if current page EXACTLY matches /c/agenda/43
-// ----------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  if (!window.location.pathname.startsWith(TARGET_PATH)) {
-    logDebug("This page is not " + TARGET_PATH + ", skipping script.");
-    return;
-  }
-
-  logDebug("🚀 Agenda script: page matches " + TARGET_PATH);
+document.addEventListener("DOMContentLoaded", function () {
+  logDebug("🚀 Agenda Processing Script Loaded!");
   observeTopicListChanges();
   processAgendaEvents();
 });
