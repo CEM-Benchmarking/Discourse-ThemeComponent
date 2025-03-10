@@ -58,6 +58,7 @@ function applyHighlighting(row, titleText) {
     { keyword: "Optional", cssClass: "optional-event", hideThumbnail: false, removeExcerpt: false }
   ];
 
+  let matchedRule = null;
   for (let rule of highlightRules) {
     if (titleText.includes(rule.keyword.toLowerCase())) {
       matchedRule = rule;
@@ -67,10 +68,10 @@ function applyHighlighting(row, titleText) {
   if (matchedRule) {
     row.classList.add(matchedRule.cssClass);
 
-      if (rule.removeExcerpt) {
-        const excerptDiv = row.querySelector("div[style*='font-size: 14px; color: rgb(102, 102, 102); margin-top: 4px;']");
-        if (excerptDiv) excerptDiv.remove();
+    if (matchedRule.hideThumbnail) {
       const thumbnailDiv = row.querySelector(".topic-list-thumbnail");
+      if (thumbnailDiv) {
+        thumbnailDiv.style.display = "none";
       }
     }
     if (matchedRule.removeExcerpt) {
