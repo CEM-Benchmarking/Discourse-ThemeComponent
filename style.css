@@ -1,0 +1,74 @@
+/* Style for day separators */
+.category-agenda .agenda-separator td {
+    padding: 20px !important;
+    background-color: #ffffff !important;
+    text-align: center !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    border-top: 4px solid #007bff !important;
+    width: 100%;
+    color: #002b5e !important; /* Deep Dark Blue */
+  }
+  
+  /* Hide the original date/time span from the user */
+  .category-agenda .topic-list-item-event .date {
+    display: none !important;
+  }
+  
+  /* Ensure pinned posts stay at the top */
+  .category-agenda .topic-list-item.pinned {
+    background-color: #f8f9fa !important; /* Light gray background */
+    font-weight: bold;
+  }
+  
+  /* Style for breaks */
+  .category-agenda .break-event {
+    background-color: #fff3cd !important; /* Light yellow background */
+    border-left: 4px solid #ffcc00 !important; /* Yellow border */
+  }
+  
+  .category-agenda .break-event .title {
+    font-weight: bold !important;
+    color: #856404 !important; /* Darker text for readability */
+  }
+  
+  /* Ensure the event row itself is centered */
+  .category-agenda .break-event td {
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+  
+  /* Style for sessions events */
+  .category-agenda .sessions-event {
+    background-color: #d1ecf1 !important; /* Light blue */
+    border-left: 4px solid #17a2b8 !important; /* Teal border */
+  }
+  
+  .category-agenda .sessions-event .title {
+    color: #0c5460 !important; /* Dark blue */
+  }
+  
+  /* Style for optional events */
+  .category-agenda .optional-event {
+    background-color: #f2f2f2 !important; /* Light grey background */
+    border-left: 4px solid #b0b0b0 !important; /* Soft grey border */
+  }
+  
+  /* Ensure optional event text is readable */
+  .category-agenda .optional-event .title {
+    // font-weight: bold !important;
+    color: #555555 !important; /* Dark grey text */
+  }
+  
+  /* Style for invite events */
+  .category-agenda .invite-event {
+    background-color: #f7dbde !important; /* Light red background */
+    border-left: 4px solid #DB5D6C !important; /* red border */
+  }
+  
+  /* Ensure optional event text is readable */
+  .category-agenda .invite-event .title {
+    font-weight: bold !important;
+    color: #DB5D6C !important; /* Dark red text */
+  }
+  
