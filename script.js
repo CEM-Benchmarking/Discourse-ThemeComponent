@@ -2,6 +2,7 @@
 // Force a full page reload when ENTERING or LEAVING /c/agenda/43
 withPluginApi("0.8.31", (api) => {
   const AGENDA_PATH = "/c/agenda/43";
+  const TOPICS_PATH = '/t/';
   let lastPath = window.location.pathname;
 
   api.onPageChange((newUrl) => {
@@ -11,8 +12,8 @@ withPluginApi("0.8.31", (api) => {
       window.location = newUrl;
       return;
     }
-    // If lastPath includes agenda but newUrl doesn't => user is LEAVING agenda
-    if (lastPath.includes(AGENDA_PATH) && !newUrl.includes(AGENDA_PATH)) {
+    // If lastPath includes agenda but newUrl doesn't => user is LEAVING agenda category
+    if (lastPath.includes(AGENDA_PATH) && !newUrl.includes(AGENDA_PATH) && !newUrl.includes(TOPICS_PATH)) {
       console.log("[Agenda] Forcing full reload because user left", AGENDA_PATH);
       window.location = newUrl;
       return;
