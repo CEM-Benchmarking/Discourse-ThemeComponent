@@ -1,0 +1,65 @@
+.category-agenda {
+    .agenda-separator td {
+      padding: 20px !important;
+      background-color: #ffffff !important;
+      text-align: center !important;
+      font-size: 22px !important;
+      font-weight: bold !important;
+      border-top: 4px solid #007bff !important;
+      width: 100%;
+      color: #002b5e !important; /* Deep Dark Blue */
+    }
+  
+    .topic-list-item-event .date {
+      display: none !important;
+    }
+  
+    .topic-list-item.pinned {
+      background-color: #f8f9fa !important;
+      font-weight: bold;
+    }
+  
+    .break-event {
+      background-color: #fff3cd !important;
+      border-left: 4px solid #ffcc00 !important;
+  
+      .title {
+        font-weight: bold !important;
+        color: #856404 !important;
+      }
+  
+      td {
+        text-align: center !important;
+        vertical-align: middle !important;
+      }
+    }
+  
+    .sessions-event {
+      background-color: #d1ecf1 !important;
+      border-left: 4px solid #17a2b8 !important;
+  
+      .title {
+        color: #0c5460 !important;
+      }
+    }
+  
+    .optional-event {
+      background-color: #f2f2f2 !important;
+      border-left: 4px solid #b0b0b0 !important;
+  
+      .title {
+        color: #555555 !important;
+      }
+    }
+  
+    .invite-event {
+      background-color: #f7dbde !important;
+      border-left: 4px solid #DB5D6C !important;
+  
+      .title {
+        font-weight: bold !important;
+        color: #DB5D6C !important;
+      }
+    }
+  }
+  

@@ -1,0 +1,26 @@
+.category-agenda {
+    div.posts.topic-list-data,
+    td.topic-list-data div.pull-left,
+    .topic-list-data .topic-item-stats,
+    .topic-list-data .topic-item-metadata .pull-right {
+      display: none !important;
+    }
+  
+    /* Make sure that all topic list thumbnail takes full use of the space that it has */
+    .topic-list-thumbnail {
+      width: 100%;
+      height: 100%;
+    }
+  
+    /* Remove automatic background thumbnail, does not look good */
+    .topic-thumbnails-list .topic-list-thumbnail .background-thumbnail {
+      display: none !important;
+    }
+  
+    /* Force each each row to have 2 columns only, 1 for thumbnail and body for the rest */
+    td.topic-list-data div.topic-item-metadata {
+      margin: 0;
+      grid-template-columns: 30% auto !important;
+    }
+  }
+  
