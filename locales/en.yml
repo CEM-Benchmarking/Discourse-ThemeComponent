@@ -1,6 +1,7 @@
 en:
   theme_metadata:
-    description: Simplifies the category layout, presenting topics in a neat, agenda-like
+    description:
+      Simplifies the category layout, presenting topics in a neat, agenda-like
       format optimized for both desktop and mobile.
     settings:
       example_setting: A description of a setting.

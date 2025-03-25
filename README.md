@@ -1,4 +1,5 @@
 # Discourse Theme Component
+
 ## Table of Contents
 
 1. [Description](#description)
@@ -11,18 +12,23 @@
 6. [Additional Information](#additional-information)
 
 ## Description
+
 This theme component customizes event-related categories on our Discourse forum (PIN) to resemble an agenda. It hides some default columns, modifies topic previews, and removes certain options within threads for a cleaner event-focused experience.
 
 ### URLs
+
 #### Staging
-* [Agenda](https://pintest.cembenchmarking.com/c/agenda/43) (See the topics styling)
-* [Theme Component UI](https://pintest.cembenchmarking.com/admin/customize/components)
+
+- [Agenda](https://pintest.cembenchmarking.com/c/agenda/43) (See the topics styling)
+- [Theme Component UI](https://pintest.cembenchmarking.com/admin/customize/components)
 
 #### Production
-* [Agenda](https://pin.cembenchmarking.com/c/pabs-conference-2025/46) (See the topics styling)
-* [Theme Component UI](https://pin.cembenchmarking.com/admin/customize/components)
+
+- [Agenda](https://pin.cembenchmarking.com/c/pabs-conference-2025/46) (See the topics styling)
+- [Theme Component UI](https://pin.cembenchmarking.com/admin/customize/components)
 
 ### Stack
+
 - **Frontend:**
   - Ember JS
   - Handlebars JS
@@ -56,11 +62,19 @@ This theme component customizes event-related categories on our Discourse forum 
 
 ## Deployment
 
-1. **Push Your Changes**: Merge your changes into the `main` branch via a Pull Request.
-2. **Update the Theme**:
+1. Make sure to run the following commands:
+
+   ```bash
+   pnpm prettier --write .
+   pnpm stylelint --allow-empty-input "{javascripts,desktop,mobile,common,scss}/**/*.scss"
+   pnpm eslint -fix
+   ```
+
+2. **Push Your Changes**: Merge your changes into the `main` branch via a Pull Request.
+3. **Update the Theme**:
    - Go to the **Admin Panel** of your Discourse instance.
    - Navigate to the theme section and click **Update** to apply the latest changes.
-3. **No Downtime Required**: Template updates apply instantly without needing to rebuild the app.
+4. **No Downtime Required**: Template updates apply instantly without needing to rebuild the app.
 
 ## Debugging
 
@@ -69,5 +83,7 @@ This theme component customizes event-related categories on our Discourse forum 
 - **Inspect API Requests**: If you’re fetching data, watch for API calls in the **Network** tab.
 
 ## Additional Information
+
 ### Theme Structure
+
 Keep the folder structure consistent. Refer to the [Discourse Theme Structure Guide](https://meta.discourse.org/t/structure-of-themes-and-theme-components/60848) for best practices.

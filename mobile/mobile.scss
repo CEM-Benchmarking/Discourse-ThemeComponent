@@ -1,26 +1,41 @@
-.category-agenda {
-    div.posts.topic-list-data,
-    td.topic-list-data div.pull-left,
-    .topic-list-data .topic-item-stats,
-    .topic-list-data .topic-item-metadata .pull-right {
-      display: none !important;
-    }
-  
-    /* Make sure that all topic list thumbnail takes full use of the space that it has */
-    .topic-list-thumbnail {
-      width: 100%;
-      height: 100%;
-    }
-  
-    /* Remove automatic background thumbnail, does not look good */
-    .topic-thumbnails-list .topic-list-thumbnail .background-thumbnail {
-      display: none !important;
-    }
-  
-    /* Force each each row to have 2 columns only, 1 for thumbnail and body for the rest */
-    td.topic-list-data div.topic-item-metadata {
-      margin: 0;
-      grid-template-columns: 30% auto !important;
-    }
+.category-agenda,
+.category-pabs-conference-2025 {
+  div.posts.topic-list-data,
+  td.topic-list-data div.pull-left,
+  .topic-list-data .topic-item-stats,
+  .topic-list-data .topic-item-metadata .pull-right {
+    display: none !important;
   }
-  
+
+  /* Make sure that all topic list thumbnail takes full use of the space that it has */
+  .topic-list-thumbnail {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Remove automatic background thumbnail, does not look good */
+  .topic-thumbnails-list .topic-list-thumbnail .background-thumbnail {
+    display: none !important;
+  }
+
+  /* Force each row to have 2 columns only, 1 for thumbnail and body for the rest */
+  td.topic-list-data div.topic-item-metadata {
+    margin: 0;
+    grid-template-columns: 30% auto !important;
+  }
+}
+
+/* Remove tabs for pabs-conference-2025 */
+.category-pabs-conference-2025 ul.dropdown-menu .latest,
+.category-pabs-conference-2025 ul.dropdown-menu .bookmarks {
+  display: none !important;
+}
+
+/* Force break-event like lunches to not have any thumbnail */
+.category-pabs-conference-2025
+  tr.break-event
+  td.topic-list-data
+  div.topic-item-metadata {
+  margin: 0;
+  grid-template-columns: auto !important;
+}
